@@ -1,16 +1,26 @@
-@startuml
-title Sequencia - emacs-a11y doctor --json
+@startuml doctor-sequence-json
+title Sequencia - emacs-a11y (modo interativo + doctor json)
 
 actor Support
 participant CLI
+participant "Interactive Loop" as Loop
+participant "Context Router" as Router
 participant "Diagnostic Orchestrator" as Orch
 participant "Check Registry" as Registry
 participant "Platform Adapter" as Adapter
 participant "JSON Renderer" as JsonRenderer
 participant "Operating System" as OS
 
-Support -> CLI : emacs-a11y doctor --json
-CLI -> Orch : run(json_mode=true)
+Support -> CLI : emacs-a11y
+CLI -> Loop : start(root)
+Loop --> Support : help contextual raiz
+Support -> Loop : doctor
+Loop -> Router : dispatch("doctor", root)
+Router --> Loop : push(doctor)
+Loop --> Support : help contextual doctor
+Support -> Loop : json
+Loop -> Router : dispatch("json", doctor)
+Router -> Orch : run_diagnostic()
 Orch -> Registry : load_checks(os)
 Registry --> Orch : checks[]
 Orch -> Adapter : collect_environment_state()
@@ -24,8 +34,11 @@ loop for each check
 end
 
 Orch -> JsonRenderer : render(report)
-JsonRenderer --> CLI : JSON payload
-CLI --> Support : json + exit code
+JsonRenderer --> Loop : JSON payload
+Loop --> Support : json
+Support -> Loop : exit
+Loop --> CLI : exit code
+CLI --> Support : encerramento limpo
 
 note over CLI,OS
 Read-only diagnostics only.

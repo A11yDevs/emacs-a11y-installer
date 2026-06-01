@@ -19,11 +19,11 @@
 ### Text mode
 - Linear, screen-reader-friendly output.
 - Ordered sections:
-  - Summary
-  - Critical
-  - Warnings
+  - Resumo
+  - Críticos
+  - Avisos
   - Info
-  - Next steps
+  - Próximos passos
 
 ### JSON mode
 - JSON object following `doctor-report.schema.json`.
