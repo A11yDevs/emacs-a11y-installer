@@ -1,6 +1,6 @@
 # Implementation Plan: Doctor CLI Acessível
 
-**Branch**: `main` | **Date**: 2026-06-01 | **Spec**: `/specs/001-doctor-cli/spec.md`
+**Branch**: `001-doctor-cli` | **Date**: 2026-06-01 | **Spec**: `/specs/001-doctor-cli/spec.md`
 
 **Input**: Feature specification from `/specs/001-doctor-cli/spec.md`
 

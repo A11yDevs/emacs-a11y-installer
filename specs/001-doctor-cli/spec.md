@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-01
 
-**Status**: Draft
+**Status**: Ready for Implementation
 
 **Input**: User description: "Create the first feature of the emacs-a11y-installer: an accessible CLI diagnostic command called `emacs-a11y doctor` that checks the user environment before installation. It should detect the operating system, architecture, Emacs availability and version, Git availability, Python availability, the Emacs Acessível profile directory, existing user Emacs configuration that must not be overwritten, initial TTS or speech infrastructure availability for Windows, macOS and Linux, and possible Emacspeak installation. The command must not modify the system, install dependencies, request administrator privileges, or download binaries. It should produce clear linear terminal output suitable for screen readers, provide concrete next steps for missing dependencies, separate critical problems from warnings and informational items, support optional JSON output with `--json`, and return meaningful exit codes."
 
@@ -69,7 +69,7 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - **FR-001**: O sistema MUST fornecer o comando `emacs-a11y doctor` para executar um diagnóstico de ambiente antes de qualquer instalação.
 - **FR-002**: O sistema MUST detectar sistema operacional e arquitetura do ambiente atual.
 - **FR-003**: O sistema MUST detectar disponibilidade do Emacs e, quando encontrado, relatar sua versão.
-- **FR-004**: O sistema MUST detectar disponibilidade de Git e Python no ambiente atual.
+- **FR-004**: O sistema MUST detectar disponibilidade de Git e Python no ambiente atual, tratando ausência de Git como não bloqueante (WARNING) para instalação padrão e ausência de Python como bloqueante (CRITICAL) para a distribuição canônica baseada em pacote Python.
 - **FR-005**: O sistema MUST identificar o diretório de perfil do Emacs Acessível e informar se ele existe, está ausente ou não está acessível.
 - **FR-006**: O sistema MUST identificar configurações pessoais existentes de Emacs que não devem ser sobrescritas durante futuras instalações.
 - **FR-007**: O sistema MUST detectar sinais iniciais de infraestrutura de voz ou TTS relevantes para Windows, macOS e Linux.
@@ -125,3 +125,8 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - A saída JSON é destinada a automação, testes e suporte, mas não substitui a saída textual acessível como experiência padrão.
 - O comando pode classificar parte das verificações como aviso quando a plataforma não permitir confirmação total de um item sem operações invasivas.
 - O pacote Python multiplataforma é o formato canônico da feature, e outros formatos de distribuição são derivados do mesmo código-fonte.
+
+## Scope Notes
+
+- Esta feature cobre o comando `doctor` como etapa doctor-first e inclui conformidade de `--help` para esse comando.
+- Os comandos `install`, `update` e `remove` permanecem priorizados no roadmap constitucional e serão tratados em features subsequentes com contratos, tarefas e validações dedicadas.
