@@ -23,96 +23,120 @@ Sync Impact Report
 ## Princípios Fundamentais
 
 ### Artigo I — Acessibilidade como requisito estrutural
-A acessibilidade MUST ser tratada como requisito arquitetural. Todo comando,
-mensagem, erro, confirmação, log e relatório MUST ser utilizável em terminal,
-com leitor de tela e fluxo sem mouse. A saída textual MUST ser clara, linear e
-objetiva. O fluxo principal de instalação MUST ser executável integralmente por
-teclado e compreensível por saída textual linear. Rationale: o objetivo do
-projeto é autonomia real de pessoas cegas ou
+* A acessibilidade MUST ser tratada como requisito arquitetural. 
+* Todo comando, mensagem, erro, confirmação, log e relatório MUST ser utilizável em terminal, com leitor de tela e fluxo sem mouse. 
+* A saída textual MUST ser clara, linear e objetiva. 
+* O fluxo principal de instalação MUST ser executável integralmente por teclado e compreensível por saída textual linear. 
+
+Rationale: o objetivo do projeto é autonomia real de pessoas cegas ou
 com baixa visão durante instalação e manutenção do ambiente.
 
 ### Artigo II — CLI como interface primária
-A interface principal MUST ser CLI e MUST cobrir todos os comportamentos
-essenciais de instalação, diagnóstico, atualização, reparo e remoção. A CLI
-MUST aceitar argumentos explícitos, oferecer modo interativo acessível,
+* A interface principal MUST ser CLI e MUST cobrir todos os comportamentos
+essenciais de instalação, diagnóstico, atualização, reparo e remoção. 
+* A CLI MUST aceitar argumentos explícitos, oferecer modo interativo acessível,
 oferecer modo não interativo para automação e permitir saída textual e JSON
-quando aplicável. Rationale: CLI acessível é o caminho mais portátil, testável e
-automatizável para este contexto.
+quando aplicável. 
+
+Rationale: CLI acessível é o caminho mais portátil, testável e automatizável para este contexto.
 
 ### Artigo III — Instalação não destrutiva
-O instalador MUST preservar configurações pessoais existentes por padrão e MUST
-usar perfil isolado para o Emacs Acessível. Alterações destrutivas só MAY
-ocorrer com consentimento explícito do usuário e mecanismo reversível definido.
+* O instalador MUST preservar configurações pessoais existentes por padrão e MUST
+usar perfil isolado para o Emacs Acessível.
+* Alterações destrutivas só MAY ocorrer com consentimento explícito do usuário e
+mecanismo reversível definido.
+
 Rationale: preservar o ambiente atual evita perda de configuração e reduz risco.
 
 ### Artigo IV — Multiplataforma com comportamento nativo
-O projeto MUST funcionar em Windows, macOS e Linux, com adaptação explícita às
-convenções de cada sistema. Regras comuns MUST ficar no núcleo Python e regras
-específicas MUST ser isoladas em módulos de plataforma. Rationale: separação
-clara reduz acoplamento e melhora manutenção de comportamentos nativos.
+* O projeto MUST funcionar em Windows, macOS e Linux, com adaptação explícita às
+convenções de cada sistema.
+* Regras comuns MUST ficar no núcleo Python e regras específicas MUST ser
+isoladas em módulos de plataforma.
+
+Rationale: separação clara reduz acoplamento e melhora manutenção de
+comportamentos nativos.
 
 ### Artigo V — Diagnóstico antes da instalação
-O comando doctor MUST ser funcionalidade central desde o início. Antes de
-instalar ou alterar qualquer componente, o sistema MUST diagnosticar ambiente,
-dependências, TTS, Emacs/Emacspeak, permissões e riscos prováveis, sugerindo
-ações concretas sem alterações automáticas não solicitadas. Rationale:
-diagnóstico antecipado evita falhas opacas e suporte reativo.
+* O comando doctor MUST ser funcionalidade central desde o início.
+* Antes de instalar ou alterar qualquer componente, o sistema MUST diagnosticar
+ambiente, dependências, TTS, Emacs/Emacspeak, permissões e riscos prováveis,
+sugerindo ações concretas sem alterações automáticas não solicitadas.
+
+Rationale: diagnóstico antecipado evita falhas opacas e suporte reativo.
 
 ### Artigo VI — Python como núcleo canônico e scripts como adaptadores
-O projeto MUST ter um pacote Python multiplataforma como formato canônico de
-código-fonte e distribuição técnica. O núcleo de decisão MUST ser implementado
-em Python modular e testável. Scripts de shell/PowerShell MAY existir para
-bootstrap, automação, suporte técnico e desenvolvimento, mas MUST NOT conter a
-regra de negócio principal do instalador. Rationale: centralização de regras em
-um núcleo único facilita testes, rastreabilidade e evolução multiplataforma.
+* O projeto MUST ter um pacote Python multiplataforma como formato canônico de
+código-fonte e distribuição técnica.
+* O núcleo de decisão MUST ser implementado em Python modular e testável.
+* Scripts de shell/PowerShell MAY existir para bootstrap, automação, suporte
+técnico e desenvolvimento, mas MUST NOT conter a regra de negócio principal do
+instalador.
+
+Rationale: centralização de regras em um núcleo único facilita testes,
+rastreabilidade e evolução multiplataforma.
 
 ### Artigo VII — Testes antes de implementação
-Funcionalidades de produção MUST ter comportamento especificado e validação
-automatizada antes da implementação principal. Protótipos exploratórios MAY ser
-criados sem teste prévio, mas MUST ser convertidos em especificação, teste e
-documentação antes de entrar na branch principal. O ciclo mínimo para código de
-produção MUST ser: especificar -> escrever teste -> observar falha inicial
-quando aplicável -> implementar -> validar -> documentar. Rationale: reduz
-regressões e dá segurança para mudanças em fluxos críticos de instalação e
-configuração sem bloquear exploração técnica controlada.
+* Funcionalidades de produção MUST ter comportamento especificado e validação
+automatizada antes da implementação principal.
+* Protótipos exploratórios MAY ser criados sem teste prévio, mas MUST ser
+convertidos em especificação, teste e documentação antes de entrar na branch
+principal.
+* O ciclo mínimo para código de produção MUST ser: especificar -> escrever teste
+-> observar falha inicial quando aplicável -> implementar -> validar ->
+documentar.
+
+Rationale: reduz regressões e dá segurança para mudanças em fluxos críticos de
+instalação e configuração sem bloquear exploração técnica controlada.
 
 ### Artigo VIII — Segurança, consentimento e reversibilidade
-Operações com privilégio, alteração de PATH, modificação de arquivos existentes,
-download de binários e remoções MUST exigir confirmação explícita. Alterações
-MUST ser reversíveis sempre que tecnicamente viável. Rationale: o instalador
-atua sobre o ambiente local do usuário e precisa de postura conservadora.
+* Operações com privilégio, alteração de PATH, modificação de arquivos
+existentes, download de binários e remoções MUST exigir confirmação explícita.
+* Alterações MUST ser reversíveis sempre que tecnicamente viável.
+
+Rationale: o instalador atua sobre o ambiente local do usuário e precisa de
+postura conservadora.
 
 ### Artigo IX — Modularidade e perfis
-Distribuição de recursos MUST ser orientada por perfis e módulos opcionais.
-Perfis iniciais recomendados são minimal, java, python, latex, ai e full. O
-perfil padrão MUST ser funcional, acessível e mínimo, evitando carga excessiva.
+* Distribuição de recursos MUST ser orientada por perfis e módulos opcionais.
+* Perfis iniciais recomendados são minimal, java, python, latex, ai e full.
+* O perfil padrão MUST ser funcional, acessível e mínimo, evitando carga
+excessiva.
+
 Rationale: modularidade permite adoção progressiva sem comprometer usabilidade.
 
 ### Artigo X — Observabilidade e suporte remoto
-Execuções relevantes MUST gerar logs textuais úteis para suporte remoto e
-diagnóstico assistido. Logs MUST ocultar segredos e dados sensíveis, mantendo
-contexto técnico necessário para análise. Rationale: visibilidade operacional é
-parte essencial da acessibilidade e manutenção comunitária.
+* Execuções relevantes MUST gerar logs textuais úteis para suporte remoto e
+diagnóstico assistido.
+* Logs MUST ocultar segredos e dados sensíveis, mantendo contexto técnico
+necessário para análise.
+
+Rationale: visibilidade operacional é parte essencial da acessibilidade e
+manutenção comunitária.
 
 ### Artigo XI — Documentação como parte da entrega
-Nenhuma funcionalidade é completa sem documentação mínima. Cada comando MUST
-incluir ajuda CLI, exemplo de uso, descrição de efeitos, riscos conhecidos e
-estratégia de reversão quando aplicável. Rationale: documentação operacional é
-parte do produto e não um artefato opcional.
+* Nenhuma funcionalidade é completa sem documentação mínima.
+* Cada comando MUST incluir ajuda CLI, exemplo de uso, descrição de efeitos,
+riscos conhecidos e estratégia de reversão quando aplicável.
+
+Rationale: documentação operacional é parte do produto e não um artefato
+opcional.
 
 ### Artigo XII — Estratégia oficial de distribuição em camadas
-A estratégia oficial MUST priorizar pacote Python multiplataforma como base
+* A estratégia oficial MUST priorizar pacote Python multiplataforma como base
 canônica, com instalação preferencial via `pipx` para usuários técnicos.
-Executáveis autônomos gerados do mesmo código-fonte (por exemplo,
+* Executáveis autônomos gerados do mesmo código-fonte (por exemplo,
 `emacs-a11y.exe` via PyInstaller) MAY ser oferecidos para usuários finais,
-especialmente no Windows. Qualquer executável empacotado MUST incluir runtime
-Python e dependências necessárias, sem exigir instalação prévia de Python, pip
-ou pipx. A instalação via `pipx` MAY exigir Python previamente instalado.
-A evolução recomendada MUST seguir esta ordem: pacote Python local durante
+especialmente no Windows.
+* Qualquer executável empacotado MUST incluir runtime Python e dependências
+necessárias, sem exigir instalação prévia de Python, pip ou pipx.
+* A instalação via `pipx` MAY exigir Python previamente instalado.
+* A evolução recomendada MUST seguir esta ordem: pacote Python local durante
 desenvolvimento -> instalação via `pipx` -> executáveis empacotados -> pacotes
-nativos (MSI, PKG, DEB, APT, Homebrew, AppImage) -> GUI opcional. Rationale:
-uma cadeia progressiva preserva simplicidade operacional e amplia adoção sem
-fragmentar o núcleo técnico.
+nativos (MSI, PKG, DEB, APT, Homebrew, AppImage) -> GUI opcional.
+
+Rationale: uma cadeia progressiva preserva simplicidade operacional e amplia
+adoção sem fragmentar o núcleo técnico.
 
 ## Escopo e Restrições de Arquitetura
 
