@@ -81,6 +81,9 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - **FR-013**: O comando MUST retornar códigos de saída significativos que distingam sucesso, avisos e falhas críticas.
 - **FR-014**: O comando MUST operar em modo somente leitura, sem modificar arquivos, instalar dependências, solicitar privilégios administrativos ou baixar binários.
 - **FR-015**: O sistema MUST manter consistência semântica entre a saída textual e a saída JSON para o mesmo diagnóstico.
+- **FR-016**: O comando MUST ser disponibilizado como entrypoint da distribuição canônica em pacote Python multiplataforma, compatível com instalação via `pipx`.
+- **FR-017**: Quando houver distribuição em executável autônomo, o comando MUST manter paridade funcional de checks, severidade, próximos passos e códigos de saída em relação ao comando da distribuição canônica.
+- **FR-018**: Scripts auxiliares de plataforma MAY iniciar ou automatizar a execução do diagnóstico, mas MUST NOT conter a lógica principal de regras diagnósticas.
 
 ### Constitution Alignment *(mandatory)*
 
@@ -91,7 +94,10 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - **CA-005 Doctor-first**: O recurso existe para orientar a pessoa usuária antes da instalação e antecipa riscos e lacunas do ambiente.
 - **CA-006 Segurança e consentimento**: O comando não solicita elevação, não baixa binários e não executa operações sensíveis de escrita.
 - **CA-007 Perfis e modularidade**: O diagnóstico reconhece o perfil do Emacs Acessível e diferencia configuração pessoal existente de futura configuração do projeto.
-- **CA-008 Documentação operacional**: A feature exigirá ajuda CLI, exemplos de uso e orientação de interpretação dos resultados.
+- **CA-008 Observabilidade e suporte remoto**: O resultado do diagnóstico prioriza informação útil para suporte remoto, com preservação de dados sensíveis.
+- **CA-009 Distribuição e instalação**: O comportamento especificado cobre a distribuição canônica em pacote Python e define paridade esperada para executáveis autônomos quando publicados.
+- **CA-010 Scripts auxiliares**: Scripts de plataforma são tratados como camada de bootstrap/automação, sem deslocar a regra diagnóstica do núcleo Python.
+- **CA-011 Documentação operacional**: A feature exigirá ajuda CLI, exemplos de uso e orientação de interpretação dos resultados em todos os canais de distribuição suportados.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -109,6 +115,7 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - **SC-003**: O relatório textual e o relatório estruturado representam o mesmo conjunto de achados em 100% dos casos validados.
 - **SC-004**: Em pelo menos 90% dos ambientes de teste com dependências ausentes, o comando fornece próximos passos específicos o suficiente para orientar a correção sem suporte adicional imediato.
 - **SC-005**: O comando distingue com código de saída apropriado os cenários de ambiente pronto, ambiente com avisos e ambiente com bloqueios críticos em 100% dos casos validados.
+- **SC-006**: Quando o comando for distribuído em mais de um canal (por exemplo, pacote Python e executável autônomo), os resultados de diagnóstico permanecem funcionalmente equivalentes em 100% dos cenários de validação definidos para a feature.
 
 ## Assumptions
 
@@ -117,3 +124,4 @@ Como pessoa usuária com uma configuração pessoal de Emacs já existente, quer
 - Caminhos e sinais de Emacs, Emacspeak e configuração pessoal podem variar por plataforma, mas haverá heurísticas suficientes para produzir orientação útil.
 - A saída JSON é destinada a automação, testes e suporte, mas não substitui a saída textual acessível como experiência padrão.
 - O comando pode classificar parte das verificações como aviso quando a plataforma não permitir confirmação total de um item sem operações invasivas.
+- O pacote Python multiplataforma é o formato canônico da feature, e outros formatos de distribuição são derivados do mesmo código-fonte.
