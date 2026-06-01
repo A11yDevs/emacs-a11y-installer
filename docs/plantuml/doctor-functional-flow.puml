@@ -1,25 +1,38 @@
-@startuml
+@startuml doctor-functional-flow
 title Doctor Functional/Compositional Flow
 start
-:collect_environment_state();
-:select_checks(common + platform);
-
-repeat
-  :run_check(state) -> DiagnosticResult;
-repeat while (checks remaining?) is (yes)
-
-:aggregate_results() -> DiagnosticReport;
-if (json mode?) then (yes)
-  :render_json(report);
-else (no)
-  :render_text(report);
+if (args vazios?) then (sim)
+  :iniciar sessao interativa;
+  :mostrar help do contexto raiz;
+  repeat
+    :ler comando no prompt contextual;
+    if (comando global?) then (sim)
+      if (help) then (sim)
+        :mostrar help do contexto atual;
+      elseif (back)
+        :voltar contexto ou sair no raiz;
+      else (exit)
+        :encerrar sessao;
+      endif
+    else (nao)
+      if (navegar para doctor?) then (sim)
+        :entrar em emacs-a11y doctor>;
+        :mostrar help do contexto doctor;
+      elseif (acao doctor?)
+        :executar fluxo doctor existente;
+      else (invalido)
+        :mensagem linear + sugestao para help;
+      endif
+    endif
+  repeat while (sessao ativa?) is (sim)
+else (nao)
+  :executar fluxo doctor direto;
 endif
-:map_exit_code(report);
 stop
 
 note right
 Core is compositional:
-independent checks + pure transforms
-where possible.
+interactive routing + doctor domain reuse
+without business-rule duplication.
 end note
 @enduml

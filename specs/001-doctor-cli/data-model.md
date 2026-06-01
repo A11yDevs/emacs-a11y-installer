@@ -30,12 +30,13 @@ O modelo combina entidades de dominio simples com fluxo composicional de checks.
 - Purpose: Resultado individual de um check.
 - Fields:
   - `check_id: str`
+  - `name: str`
   - `status: Status`
   - `severity: Severity`
   - `summary: str`
   - `evidence: list[str]`
   - `next_steps: list[str]`
-  - `is_read_only: bool` (sempre `true`)
+  - `read_only: bool` (sempre `true`)
 
 ### EnvironmentState
 - Purpose: Snapshot observado do ambiente local.
@@ -61,7 +62,7 @@ O modelo combina entidades de dominio simples com fluxo composicional de checks.
   - `generated_at: str` (ISO 8601)
   - `environment: EnvironmentState`
   - `results: list[DiagnosticResult]`
-  - `summary_counts: SummaryCounts`
+  - `summary: SummaryCounts`
   - `next_steps: list[str]`
   - `exit_code: int`
 
@@ -81,11 +82,11 @@ O modelo combina entidades de dominio simples com fluxo composicional de checks.
 - `EnvironmentState` e lido por todos os checks e nao e mutado pelos checks.
 
 ## Validation Rules
-- `is_read_only` MUST ser `true` em todos os resultados.
+- `read_only` MUST ser `true` em todos os resultados.
 - `exit_code` MUST seguir o mapeamento:
   - `0`: sem warnings e sem critical.
   - `1`: com warnings e sem critical.
   - `2`: com pelo menos um critical.
   - `3`: erro interno do diagnostico.
-- `summary_counts` MUST ser consistente com `results`.
+- `summary` MUST ser consistente com `results`.
 - `next_steps` MUST conter acoes concretas para checks `FAIL` e `UNKNOWN` relevantes.

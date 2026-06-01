@@ -1,16 +1,26 @@
-@startuml
-title Sequencia - emacs-a11y doctor (texto)
+@startuml doctor-sequence-text
+title Sequencia - emacs-a11y (modo interativo + doctor run)
 
 actor Usuario
 participant CLI
+participant "Interactive Loop" as Loop
+participant "Context Router" as Router
 participant "Diagnostic Orchestrator" as Orch
 participant "Check Registry" as Registry
 participant "Platform Adapter" as Adapter
 participant "Text Renderer" as TextRenderer
 participant "Operating System" as OS
 
-Usuario -> CLI : emacs-a11y doctor
-CLI -> Orch : run(json_mode=false)
+Usuario -> CLI : emacs-a11y
+CLI -> Loop : start(root)
+Loop --> Usuario : help contextual raiz
+Usuario -> Loop : doctor
+Loop -> Router : dispatch("doctor", root)
+Router --> Loop : push(doctor)
+Loop --> Usuario : help contextual doctor
+Usuario -> Loop : run
+Loop -> Router : dispatch("run", doctor)
+Router -> Orch : run_diagnostic()
 Orch -> Registry : load_checks(os)
 Registry --> Orch : checks[]
 Orch -> Adapter : collect_environment_state()
@@ -24,8 +34,15 @@ loop for each check
 end
 
 Orch -> TextRenderer : render(report)
-TextRenderer --> CLI : formatted text
-CLI --> Usuario : output + exit code
+TextRenderer --> Loop : formatted text
+Loop --> Usuario : output
+Usuario -> Loop : back
+Loop -> Router : dispatch("back", doctor)
+Router --> Loop : pop(root)
+Loop --> Usuario : help contextual raiz
+Usuario -> Loop : exit
+Loop --> CLI : exit code
+CLI --> Usuario : encerramento limpo
 
 note over CLI,OS
 All probes are read-only.

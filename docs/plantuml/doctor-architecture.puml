@@ -1,9 +1,12 @@
-@startuml
+@startuml doctor-architecture
 title Doctor CLI Architecture
 skinparam componentStyle rectangle
 
 package "Canonical Python Package" {
   [CLI]
+  [Interactive Session Loop]
+  [Context Tree Router]
+  [Command Context Model]
   [Diagnostic Orchestrator]
   [Check Registry]
   [Common Checks]
@@ -21,6 +24,10 @@ package "Platform Adapters" {
 }
 
 [CLI] --> [Diagnostic Orchestrator]
+[CLI] --> [Interactive Session Loop]
+[Interactive Session Loop] --> [Context Tree Router]
+[Context Tree Router] --> [Command Context Model]
+[Context Tree Router] --> [Diagnostic Orchestrator]
 [Diagnostic Orchestrator] --> [Check Registry]
 [Check Registry] --> [Common Checks]
 [Check Registry] --> [Windows Adapter]
@@ -36,5 +43,8 @@ note bottom
 Canonical distribution is the Python package.
 Future standalone executables must derive
 from the same source and architecture.
+
+Interactive mode reuses the same doctor
+orchestrator and renderers used by direct mode.
 end note
 @enduml
