@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a11ydevs.org/schemas/doctor-report.schema.json",
+  "title": "DoctorDiagnosticReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_version",
+    "generated_at",
+    "environment",
+    "summary",
+    "results",
+    "next_steps",
+    "exit_code"
+  ],
+  "properties": {
+    "report_version": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture"],
+      "properties": {
+        "os": { "type": "string", "minLength": 1 },
+        "os_version": { "type": ["string", "null"] },
+        "architecture": { "type": "string", "minLength": 1 }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["critical", "warning", "info", "pass", "fail", "unknown"],
+      "properties": {
+        "critical": { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "info": { "type": "integer", "minimum": 0 },
+        "pass": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 },
+        "unknown": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "name",
+          "status",
+          "severity",
+          "summary",
+          "evidence",
+          "next_steps",
+          "read_only"
+        ],
+        "properties": {
+          "check_id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "status": { "type": "string", "enum": ["PASS", "FAIL", "UNKNOWN"] },
+          "severity": { "type": "string", "enum": ["CRITICAL", "WARNING", "INFO"] },
+          "summary": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "next_steps": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "read_only": { "type": "boolean", "const": true }
+        }
+      }
+    },
+    "next_steps": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "exit_code": { "type": "integer", "enum": [0, 1, 2, 3] }
+  }
+}

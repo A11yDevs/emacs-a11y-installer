@@ -1,0 +1,25 @@
+@startuml
+title Doctor Functional/Compositional Flow
+start
+:collect_environment_state();
+:select_checks(common + platform);
+
+repeat
+  :run_check(state) -> DiagnosticResult;
+repeat while (checks remaining?) is (yes)
+
+:aggregate_results() -> DiagnosticReport;
+if (json mode?) then (yes)
+  :render_json(report);
+else (no)
+  :render_text(report);
+endif
+:map_exit_code(report);
+stop
+
+note right
+Core is compositional:
+independent checks + pure transforms
+where possible.
+end note
+@enduml

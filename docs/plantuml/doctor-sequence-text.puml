@@ -1,0 +1,35 @@
+@startuml
+title Sequencia - emacs-a11y doctor (texto)
+
+actor Usuario
+participant CLI
+participant "Diagnostic Orchestrator" as Orch
+participant "Check Registry" as Registry
+participant "Platform Adapter" as Adapter
+participant "Text Renderer" as TextRenderer
+participant "Operating System" as OS
+
+Usuario -> CLI : emacs-a11y doctor
+CLI -> Orch : run(json_mode=false)
+Orch -> Registry : load_checks(os)
+Registry --> Orch : checks[]
+Orch -> Adapter : collect_environment_state()
+Adapter -> OS : read-only probes
+OS --> Adapter : environment signals
+Adapter --> Orch : EnvironmentState
+
+loop for each check
+  Orch -> Registry : execute(check, state)
+  Registry --> Orch : DiagnosticResult
+end
+
+Orch -> TextRenderer : render(report)
+TextRenderer --> CLI : formatted text
+CLI --> Usuario : output + exit code
+
+note over CLI,OS
+All probes are read-only.
+No file writes, installs, downloads,
+PATH changes or privilege requests.
+end note
+@enduml

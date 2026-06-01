@@ -1,0 +1,48 @@
+@startuml
+title Doctor CLI - Casos de Uso
+left to right direction
+
+actor "Pessoa usuaria" as User
+actor "Pessoa mantenedora/suporte" as Support
+actor "Sistema operacional" as OS
+actor "Emacs" as Emacs
+actor "Infraestrutura de voz/TTS" as TTS
+
+rectangle "emacs-a11y doctor" {
+  usecase "Executar diagnostico textual" as UC_TEXT
+  usecase "Executar diagnostico JSON" as UC_JSON
+  usecase "Verificar ambiente" as UC_ENV
+  usecase "Verificar Emacs" as UC_EMACS
+  usecase "Verificar perfil" as UC_PROFILE
+  usecase "Verificar configuracao pessoal" as UC_USERCFG
+  usecase "Verificar TTS" as UC_TTS
+  usecase "Verificar Emacspeak" as UC_EPEAK
+  usecase "Interpretar proximos passos" as UC_NEXT
+}
+
+User --> UC_TEXT
+Support --> UC_JSON
+UC_TEXT .> UC_ENV : <<include>>
+UC_TEXT .> UC_EMACS : <<include>>
+UC_TEXT .> UC_PROFILE : <<include>>
+UC_TEXT .> UC_USERCFG : <<include>>
+UC_TEXT .> UC_TTS : <<include>>
+UC_TEXT .> UC_EPEAK : <<include>>
+UC_TEXT .> UC_NEXT : <<include>>
+
+UC_JSON .> UC_ENV : <<include>>
+UC_JSON .> UC_EMACS : <<include>>
+UC_JSON .> UC_PROFILE : <<include>>
+UC_JSON .> UC_USERCFG : <<include>>
+UC_JSON .> UC_TTS : <<include>>
+UC_JSON .> UC_EPEAK : <<include>>
+
+OS --> UC_ENV
+Emacs --> UC_EMACS
+TTS --> UC_TTS
+
+note right of UC_TEXT
+Somente leitura:
+nao modifica sistema
+end note
+@enduml

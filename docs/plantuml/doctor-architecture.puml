@@ -1,0 +1,40 @@
+@startuml
+title Doctor CLI Architecture
+skinparam componentStyle rectangle
+
+package "Canonical Python Package" {
+  [CLI]
+  [Diagnostic Orchestrator]
+  [Check Registry]
+  [Common Checks]
+  [Report Model]
+  [Text Renderer]
+  [JSON Renderer]
+  [Exit Code Mapper]
+  [Logging]
+}
+
+package "Platform Adapters" {
+  [Windows Adapter]
+  [macOS Adapter]
+  [Linux Adapter]
+}
+
+[CLI] --> [Diagnostic Orchestrator]
+[Diagnostic Orchestrator] --> [Check Registry]
+[Check Registry] --> [Common Checks]
+[Check Registry] --> [Windows Adapter]
+[Check Registry] --> [macOS Adapter]
+[Check Registry] --> [Linux Adapter]
+[Diagnostic Orchestrator] --> [Report Model]
+[Diagnostic Orchestrator] --> [Exit Code Mapper]
+[Diagnostic Orchestrator] --> [Logging]
+[Report Model] --> [Text Renderer]
+[Report Model] --> [JSON Renderer]
+
+note bottom
+Canonical distribution is the Python package.
+Future standalone executables must derive
+from the same source and architecture.
+end note
+@enduml

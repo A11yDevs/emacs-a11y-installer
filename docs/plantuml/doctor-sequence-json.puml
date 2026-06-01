@@ -1,0 +1,34 @@
+@startuml
+title Sequencia - emacs-a11y doctor --json
+
+actor Support
+participant CLI
+participant "Diagnostic Orchestrator" as Orch
+participant "Check Registry" as Registry
+participant "Platform Adapter" as Adapter
+participant "JSON Renderer" as JsonRenderer
+participant "Operating System" as OS
+
+Support -> CLI : emacs-a11y doctor --json
+CLI -> Orch : run(json_mode=true)
+Orch -> Registry : load_checks(os)
+Registry --> Orch : checks[]
+Orch -> Adapter : collect_environment_state()
+Adapter -> OS : read-only probes
+OS --> Adapter : environment signals
+Adapter --> Orch : EnvironmentState
+
+loop for each check
+  Orch -> Registry : execute(check, state)
+  Registry --> Orch : DiagnosticResult
+end
+
+Orch -> JsonRenderer : render(report)
+JsonRenderer --> CLI : JSON payload
+CLI --> Support : json + exit code
+
+note over CLI,OS
+Read-only diagnostics only.
+Same semantic results as text mode.
+end note
+@enduml
