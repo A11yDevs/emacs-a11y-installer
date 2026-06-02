@@ -4,6 +4,7 @@ from difflib import get_close_matches
 from typing import Callable
 
 from emacs_a11y.cli.doctor import execute_doctor_command
+from emacs_a11y.install.orchestrator import InstallOrchestrator
 from emacs_a11y.doctor.checks.common import build_environment_state
 from emacs_a11y.doctor.registry import load_checks
 from emacs_a11y.models.interactive_cli import (
@@ -30,12 +31,24 @@ def build_context_tree() -> dict[str, CommandContext]:
             kind="navigation",
             target_context="doctor",
         ),
+        CommandDefinition(
+            "install",
+            "Acessa o contexto de instalação segura do perfil minimal.",
+            kind="navigation",
+            target_context="install",
+        ),
         *GLOBAL_COMMANDS,
     ]
     doctor_commands = [
         CommandDefinition("run", "executa diagnóstico textual", kind="action"),
         CommandDefinition("json", "executa diagnóstico em JSON", kind="action"),
         CommandDefinition("explain", "explica checks de diagnóstico", kind="action"),
+        *GLOBAL_COMMANDS,
+    ]
+    install_commands = [
+        CommandDefinition("minimal", "prepara plano da instalação minimal", kind="action"),
+        CommandDefinition("confirm", "confirma execução da instalação", kind="action"),
+        CommandDefinition("cancel", "cancela plano pendente", kind="action"),
         *GLOBAL_COMMANDS,
     ]
 
@@ -53,6 +66,13 @@ def build_context_tree() -> dict[str, CommandContext]:
             description="Contexto de diagnóstico",
             parent="root",
             commands=doctor_commands,
+        ),
+        "install": CommandContext(
+            name="install",
+            prompt_label="emacs-a11y install",
+            description="Contexto de instalação",
+            parent="root",
+            commands=install_commands,
         ),
     }
 
@@ -174,6 +194,46 @@ def dispatch_command(state: InteractiveSessionState, raw_command: str) -> Comman
 
     if context.name == "doctor" and command == "explain":
         return CommandResult(status="ok", navigation=NavigationAction.STAY, message_lines=_explain_checks())
+
+    if context.name == "install" and command == "minimal":
+        orchestrator = InstallOrchestrator()
+        request = orchestrator.normalize_request(profile_name="minimal", mode="interactive", explicit_yes=False)
+        preview = orchestrator.preview(request)
+        if preview.plan is None:
+            return CommandResult(status="ok", navigation=NavigationAction.STAY, message_lines=preview.lines)
+
+        state.session_data["install_preview"] = preview
+        return CommandResult(status="ok", navigation=NavigationAction.STAY, message_lines=preview.lines)
+
+    if context.name == "install" and command == "confirm":
+        preview = state.session_data.get("install_preview")
+        if preview is None:
+            return CommandResult(
+                status="invalid",
+                navigation=NavigationAction.STAY,
+                message_lines=["Nenhum plano pendente. Execute minimal primeiro."],
+            )
+        orchestrator = InstallOrchestrator()
+        result, lines = orchestrator.execute(
+            request=preview.request,
+            auto_confirm=True,
+            prepared=preview,
+        )
+        state.session_data.pop("install_preview", None)
+        return CommandResult(
+            status="ok",
+            navigation=NavigationAction.STAY,
+            message_lines=lines,
+            exit_code=result.exit_code,
+        )
+
+    if context.name == "install" and command == "cancel":
+        state.session_data.pop("install_preview", None)
+        return CommandResult(
+            status="ok",
+            navigation=NavigationAction.STAY,
+            message_lines=["Plano de instalação cancelado."],
+        )
 
     return CommandResult(
         status="error",

@@ -1,0 +1,46 @@
+@startuml install-minimal-sequence-direct
+title Sequencia - emacs-a11y install --profile minimal
+actor Usuario
+participant CLI
+participant "Install Orchestrator" as Orch
+participant "Doctor Reuse" as Doctor
+participant "Install Preflight" as Preflight
+participant "Template Locator" as Locator
+participant Planner
+participant Writer
+participant Validator
+participant "Rollback Guidance" as Rollback
+participant Filesystem
+participant Emacs
+
+Usuario -> CLI : emacs-a11y install --profile minimal
+CLI -> Orch : start(request)
+Orch -> Doctor : detect platform/emacs/personal config
+Doctor --> Orch : preflight signals
+Orch -> Preflight : check required dependency (Emacs)
+alt Emacs ausente
+	Preflight --> Orch : critical_abort (exit code 2)
+	Orch --> Usuario : CRITICAL + nenhum arquivo criado + next step
+else Emacs presente
+	Preflight --> Orch : pass
+	Orch -> Locator : resolve template source
+	Locator --> Orch : ProfileTemplate
+	Orch -> Planner : build_install_plan()
+	Planner --> Orch : InstallPlan
+	Orch -> Planner : compose minimal init.el (packages/core/dired only)
+	Planner --> Orch : filtered init.el (no init-accessibility)
+	Orch --> Usuario : plano linear + confirmacao
+	Usuario -> CLI : confirma
+	CLI -> Orch : execute(plan)
+	Orch -> Writer : materialize project-owned files
+	Writer -> Filesystem : create/copy only inside isolated profile
+	Filesystem --> Writer : write results
+	Writer --> Orch : created/copied/preserved/failed
+	Orch -> Validator : validate files + no emacspeak dependency + safe emacs check
+	Validator -> Emacs : non-invasive validation without Emacspeak requirement
+	Validator --> Orch : validation result
+	Orch -> Rollback : build instructions
+	Rollback --> Orch : rollback guidance
+	Orch --> Usuario : resumo final + next step
+end
+@enduml

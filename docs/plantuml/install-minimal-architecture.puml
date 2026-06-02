@@ -1,0 +1,58 @@
+@startuml install-minimal-architecture
+title Install Minimal Profile Architecture
+skinparam componentStyle rectangle
+
+package "Canonical Python Package" {
+  [CLI Doctor]
+  [CLI Install]
+  [Interactive Session Loop]
+  [Install Orchestrator]
+  [Install Preflight]
+  [Install Planner]
+  [Template Locator]
+  [Profile Template Resolver]
+  [Profile Writer]
+  [Install Validator]
+  [Rollback Guidance]
+  [Install Text Renderer]
+  [Install Models]
+  [Doctor Orchestrator]
+  [Diagnostic Models]
+  [Packaged Resources a11y-emacs]
+}
+
+database "Project-Owned Profile Directory" as ProfileDir
+folder "Development Template Path" as DevPath
+folder "Future Frozen Bundle" as FrozenBundle
+cloud "Filesystem" as FS
+component Emacs
+
+[CLI Install] --> [Install Orchestrator]
+[Interactive Session Loop] --> [CLI Install]
+[Install Orchestrator] --> [Doctor Orchestrator]
+[Install Orchestrator] --> [Install Preflight]
+[Install Orchestrator] --> [Install Planner]
+[Install Orchestrator] --> [Template Locator]
+[Template Locator] --> [Profile Template Resolver]
+[Profile Template Resolver] --> [Packaged Resources a11y-emacs]
+[Profile Template Resolver] --> [DevPath]
+[Profile Template Resolver] --> [FrozenBundle]
+[Install Orchestrator] --> [Profile Writer]
+[Install Orchestrator] --> [Install Validator]
+[Install Orchestrator] --> [Rollback Guidance]
+[Install Orchestrator] --> [Install Text Renderer]
+[Install Planner] --> [Install Models]
+[Profile Writer] --> [FS]
+[Profile Writer] --> [ProfileDir]
+[Install Validator] --> [FS]
+[Install Validator] --> Emacs
+[Doctor Orchestrator] --> [Diagnostic Models]
+
+note bottom
+Install runs mandatory preflight first.
+If Emacs is missing, flow aborts with CRITICAL
+before template/planner/writer.
+If Emacs is available, flow proceeds to planning,
+writing, validation and rollback guidance.
+end note
+@enduml

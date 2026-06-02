@@ -1,0 +1,32 @@
+@startuml install-minimal-functional-flow
+title Install Minimal Functional Flow
+start
+:resolve request and confirmation policy;
+:reuse doctor signals when useful;
+:run mandatory preflight (Emacs required);
+if (Emacs available?) then (yes)
+  :locate template source;
+  if (template found and complete?) then (yes)
+    :build install plan;
+    :compose minimal init.el without init-accessibility;
+    :render linear pre-install plan;
+    if (confirmed or explicit safe --yes?) then (yes)
+      :materialize project-owned profile items;
+      :validate written files;
+      :assert no dependency on emacspeak/dtk;
+      :attempt safe runtime validation without Emacspeak requirement;
+      :generate support logs;
+      :emit summary + rollback guidance;
+    else (no)
+      :cancel cleanly without writes;
+    endif
+  else (no)
+    :fail safely with actionable message;
+  endif
+else (no)
+  :emit CRITICAL: Emacs nao encontrado;
+  :suggest install emacs + doctor + retry minimal;
+  :abort before any write;
+endif
+stop
+@enduml

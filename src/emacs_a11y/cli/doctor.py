@@ -6,6 +6,7 @@ from emacs_a11y.doctor import orchestrator
 from emacs_a11y.doctor.exit_codes import EXIT_INTERNAL_ERROR
 from emacs_a11y.doctor.renderers import json as json_renderer
 from emacs_a11y.doctor.renderers import text as text_renderer
+from emacs_a11y.cli.install import install_command
 
 app = typer.Typer(
     help="CLI acessivel para diagnostico e instalacao do Emacs Acessivel.",
@@ -48,6 +49,16 @@ def doctor(json_output: bool = typer.Option(False, "--json", help="Mostra relato
     """Executa diagnostico de ambiente em modo estritamente somente leitura."""
 
     raise typer.Exit(code=execute_doctor_command(json_output))
+
+
+@app.command("install")
+def install(
+    profile: str = typer.Option("minimal", "--profile", help="Perfil de instalação."),
+    yes: bool = typer.Option(False, "--yes", help="Confirma execução sem prompt no caso explícito e seguro."),
+) -> None:
+    """Instala perfil minimal em diretório isolado, com confirmação explícita."""
+
+    install_command(profile=profile, yes=yes)
 
 
 if __name__ == "__main__":
