@@ -49,6 +49,7 @@ class InteractiveSessionState:
     context_stack: list[str]
     contexts: dict[str, CommandContext]
     running: bool = True
+    session_data: dict[str, object] = field(default_factory=dict)
 
     @property
     def current_context(self) -> CommandContext:

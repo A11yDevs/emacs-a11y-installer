@@ -71,6 +71,15 @@ emacs-a11y doctor
 emacs-a11y doctor --json
 ```
 
+### Gate recomendado antes da instalacao
+```bash
+emacs-a11y doctor
+```
+
+Antes da futura instalacao de perfis, `doctor` continua sendo o fluxo
+recomendado para verificar Emacs, plataforma, configuracao pessoal e sinais de
+prontidao sem alterar o sistema.
+
 ## Matriz de verificacao por plataforma
 
 | Check | Windows | macOS | Linux |
@@ -133,6 +142,11 @@ emacs-a11y doctor --json
 - Coberto nesta feature: `doctor` e suporte de ajuda CLI.
 - Planejado para features seguintes: `install`, `update`, `remove` com contratos,
   testes e garantias de reversibilidade dedicadas.
+- Proxima feature planejada: `emacs-a11y install --profile minimal`, com
+  contexto interativo `emacs-a11y install>` e confirmacao explicita antes de
+  qualquer escrita.
+- Revisao de planejamento: `install --profile minimal` usa preflight
+  obrigatório de Emacs; sem Emacs, aborta com `CRITICAL` antes de escrever.
 
 ## Paridade entre canais de distribuicao
 

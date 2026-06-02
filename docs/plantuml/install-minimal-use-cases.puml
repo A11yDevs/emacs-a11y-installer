@@ -1,0 +1,27 @@
+@startuml install-minimal-use-cases
+title Install Minimal Profile Use Cases
+left to right direction
+actor "Pessoa usuaria" as User
+actor "Mantenedor/Suporte" as Support
+actor "Sistema Operacional" as OS
+actor Emacs
+
+rectangle "emacs-a11y install minimal" {
+  usecase "Executar instalacao minimal\nmodo direto" as UC1
+  usecase "Executar instalacao minimal\nmodo interativo" as UC2
+  usecase "Revisar plano pre-instalacao" as UC3
+  usecase "Confirmar ou cancelar" as UC4
+  usecase "Validar perfil isolado" as UC5
+  usecase "Receber rollback guidance" as UC6
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC6
+Support --> UC1
+Support --> UC5
+OS --> UC5
+Emacs --> UC5
+@enduml

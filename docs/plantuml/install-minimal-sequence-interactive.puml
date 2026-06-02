@@ -1,0 +1,47 @@
+@startuml install-minimal-sequence-interactive
+title Sequencia - modo interativo install minimal
+actor Usuario
+participant CLI
+participant "Interactive Loop" as Loop
+participant "Install Context Router" as Router
+participant "Install Orchestrator" as Orch
+participant "Install Preflight" as Preflight
+participant Planner
+participant Writer
+participant Validator
+participant Filesystem
+
+Usuario -> CLI : emacs-a11y
+CLI -> Loop : start(root)
+Loop --> Usuario : help do contexto raiz
+Usuario -> Loop : install
+Loop -> Router : push(install)
+Router --> Loop : emacs-a11y install>
+Loop --> Usuario : help do contexto install
+Usuario -> Loop : minimal
+Loop -> Orch : prepare(request)
+Orch -> Preflight : check required dependency (Emacs)
+alt Emacs ausente
+	Preflight --> Orch : critical_abort
+	Orch --> Loop : CRITICAL + nada criado + next step
+	Loop --> Usuario : permanece em contexto install
+else Emacs presente
+	Preflight --> Orch : pass
+	Orch -> Planner : build_install_plan()
+	Planner --> Orch : InstallPlan
+	Orch -> Planner : compose minimal init.el (packages/core/dired only)
+	Planner --> Orch : filtered init.el (no init-accessibility)
+	Orch --> Loop : plano pre-instalacao
+	Loop --> Usuario : plano linear + confirm/cancel
+	Usuario -> Loop : confirm
+	Loop -> Orch : execute(plan)
+	Orch -> Writer : materialize files
+	Writer -> Filesystem : write project-owned items
+	Filesystem --> Writer : results
+	Writer --> Orch : execution summary
+	Orch -> Validator : validate outputs
+	Validator --> Orch : validation + next steps
+	Orch --> Loop : resumo final + rollback guidance
+	Loop --> Usuario : output acessivel
+end
+@enduml
