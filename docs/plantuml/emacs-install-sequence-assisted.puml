@@ -1,0 +1,38 @@
+@startuml
+actor User
+participant CLI
+participant "Install Emacs\nOrchestrator" as Orchestrator
+participant Detector
+participant Recommender
+participant Consent
+participant Executor
+participant "Post-install\nDetector" as PostDetector
+participant Renderer
+
+User -> CLI : emacs-a11y install emacs --execute
+CLI -> Orchestrator : run(assisted_execution)
+Orchestrator -> Detector : detect_environment_and_emacs()
+Detector --> Orchestrator : detection result
+Orchestrator -> Recommender : choose_method(detection)
+Recommender --> Orchestrator : method + exact command
+Orchestrator -> Consent : build_summary(...)
+Consent --> CLI : CONFIRM + COMMAND + impact
+CLI --> User : show summary
+User -> CLI : confirm or cancel
+
+alt user cancels
+  CLI -> Orchestrator : consent=declined
+  Orchestrator -> Renderer : render_cancelled()
+  Renderer --> CLI : CANCELLED
+else user confirms
+  CLI -> Orchestrator : consent=confirmed
+  Orchestrator -> Executor : run_documented_command()
+  Executor --> Orchestrator : exit status + summarized output
+  Orchestrator -> PostDetector : detect_emacs_again()
+  PostDetector --> Orchestrator : detection after execution
+  Orchestrator -> Renderer : render_result(...)
+  Renderer --> CLI : SUCCESS/FAILED/NEXT STEP
+end
+
+CLI --> User : textual linear output
+@enduml

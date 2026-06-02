@@ -53,12 +53,16 @@ def doctor(json_output: bool = typer.Option(False, "--json", help="Mostra relato
 
 @app.command("install")
 def install(
+    target: str | None = typer.Argument(None, help="Subcomando de instalacao (ex.: emacs)."),
     profile: str = typer.Option("minimal", "--profile", help="Perfil de instalação."),
     yes: bool = typer.Option(False, "--yes", help="Confirma execução sem prompt no caso explícito e seguro."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Mostra recomendacoes sem executar comandos externos."),
+    execute: bool = typer.Option(False, "--execute", help="Solicita execucao assistida quando suportado."),
+    method: str = typer.Option("auto", "--method", help="Metodo preferencial: auto, winget, brew, apt."),
 ) -> None:
     """Instala perfil minimal em diretório isolado, com confirmação explícita."""
 
-    install_command(profile=profile, yes=yes)
+    install_command(target=target, profile=profile, yes=yes, dry_run=dry_run, execute=execute, method=method)
 
 
 if __name__ == "__main__":

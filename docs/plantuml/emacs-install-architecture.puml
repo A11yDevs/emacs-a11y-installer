@@ -1,0 +1,42 @@
+@startuml
+skinparam packageStyle rectangle
+
+package "CLI Layer" {
+  [cli/install.py]
+  [cli/interactive.py]
+}
+
+package "Install Emacs Domain" {
+  [install/emacs.py]
+  [install/emacs_detector.py]
+  [install/emacs_version.py]
+  [install/emacs_methods.py]
+  [install/emacs_executor.py]
+  [install/renderers/emacs_text.py]
+}
+
+package "Shared Models" {
+  [models/emacs_install.py]
+  [models/interactive_cli.py]
+}
+
+package "Doctor Reuse Adapter" {
+  [doctor adapter]
+}
+
+package "Exit Mapping" {
+  [exit code mapper]
+}
+
+[cli/install.py] --> [install/emacs.py]
+[cli/interactive.py] --> [install/emacs.py]
+[install/emacs.py] --> [install/emacs_detector.py]
+[install/emacs.py] --> [install/emacs_version.py]
+[install/emacs.py] --> [install/emacs_methods.py]
+[install/emacs.py] --> [install/emacs_executor.py]
+[install/emacs.py] --> [install/renderers/emacs_text.py]
+[install/emacs.py] --> [models/emacs_install.py]
+[install/emacs_detector.py] --> [doctor adapter]
+[install/renderers/emacs_text.py] --> [exit code mapper]
+
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant CLI
+participant "Install Emacs\nOrchestrator" as Orchestrator
+participant "Environment\nDetector" as EnvironmentDetector
+participant "Emacs\nDetector" as EmacsDetector
+participant "Method\nRecommender" as MethodRecommender
+participant "Text\nRenderer" as Renderer
+
+User -> CLI : emacs-a11y install emacs
+CLI -> Orchestrator : run(guidance_only)
+Orchestrator -> EnvironmentDetector : detect_environment()
+EnvironmentDetector --> Orchestrator : platform + architecture
+Orchestrator -> EmacsDetector : detect_emacs()
+EmacsDetector --> Orchestrator : found/missing + path + version
+Orchestrator -> MethodRecommender : recommend(environment, emacs_state)
+MethodRecommender --> Orchestrator : recommendation
+Orchestrator -> Renderer : render_guidance(...)
+Renderer --> CLI : INFO/WARNING/COMMAND/NEXT STEP
+CLI --> User : textual linear output
+@enduml

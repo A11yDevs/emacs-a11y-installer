@@ -65,6 +65,51 @@ No escopo atual de diagnóstico, a ferramenta:
 - Distribuição opcional para usuários finais: executáveis autônomos gerados do
   mesmo código-fonte (por exemplo, `emacs-a11y.exe`), com runtime Python embutido.
 
+### Gerar executável para Windows (.exe)
+
+#### Opção recomendada: GitHub Actions
+
+Este repositório inclui o workflow `.github/workflows/build-windows-exe.yml`.
+
+Como usar:
+
+1. Abra a aba **Actions** no GitHub.
+2. Execute o workflow **Build Windows Executable** manualmente (`workflow_dispatch`) ou publique uma tag `v*`.
+3. Baixe o artefato `emacs-a11y-windows-x64` ao final do job.
+
+#### Opção local (em máquina Windows)
+
+No PowerShell, dentro do repositório:
+
+```powershell
+./scripts/build-windows-exe.ps1 -Clean
+```
+
+Saída esperada:
+
+- `dist/emacs-a11y.exe`
+
+### CI/CD de releases para três plataformas
+
+Este repositório inclui o workflow `.github/workflows/release-installers.yml`
+que gera assets de instalação para:
+
+- Windows (`windows-x64`)
+- macOS (`macos-x64`)
+- Linux (`linux-x64`)
+
+Como publicar uma release:
+
+1. Crie e publique uma tag no formato `v*` (ex.: `v0.2.0`).
+2. O workflow compila binários com PyInstaller em cada sistema operacional.
+3. O pipeline cria pacotes por plataforma e publica no GitHub Releases.
+4. A release também inclui o arquivo `SHA256SUMS.txt` para verificação.
+
+Observação:
+
+- O workflow `build-windows-exe.yml` continua disponível para builds manuais
+  ad-hoc apenas de Windows.
+
 ## Documentação
 
 - Guia funcional do comando doctor: [docs/doctor-cli.md](docs/doctor-cli.md)

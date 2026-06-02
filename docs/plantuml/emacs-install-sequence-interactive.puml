@@ -1,0 +1,28 @@
+@startuml
+actor User
+participant "Interactive Shell" as Shell
+participant "Install Context" as InstallContext
+participant "Emacs Assistant" as Assistant
+participant Consent
+participant Renderer
+
+User -> Shell : emacs-a11y
+Shell -> InstallContext : enter install
+User -> InstallContext : emacs
+InstallContext -> Assistant : run guidance flow
+Assistant -> Renderer : render recommendation
+Renderer --> InstallContext : INFO/WARNING/COMMAND
+InstallContext --> User : recommendation
+
+alt assisted execution supported
+  InstallContext -> User : ask whether to continue
+  User -> InstallContext : choose execute or cancel
+  InstallContext -> Consent : resolve decision
+  Consent --> Assistant : confirmed/declined
+  Assistant -> Renderer : render final status
+  Renderer --> InstallContext : CANCELLED/SUCCESS/FAILED
+else guidance-only
+  InstallContext --> User : NEXT STEP only
+end
+
+@enduml
