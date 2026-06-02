@@ -13,6 +13,30 @@ Hoje, a principal funcionalidade disponível é o comando de diagnóstico
 
 ## Instalação rápida
 
+### One-liner para usuários finais
+
+#### Unix (bash)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.sh | bash
+```
+
+#### Windows (PowerShell)
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
+```
+
+Instalar uma versão especifica:
+
+```bash
+EMACS_A11Y_VERSION=v0.1.1 curl -fsSL https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.sh | bash
+```
+
+```powershell
+$env:EMACS_A11Y_VERSION = "v0.1.1"; iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
+```
+
 ### Opção recomendada para usuários técnicos (`pipx`)
 
 ```bash
