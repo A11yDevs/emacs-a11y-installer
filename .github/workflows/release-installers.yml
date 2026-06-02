@@ -21,8 +21,8 @@ jobs:
             platform: linux-x64
             binary_name: emacs-a11y
             archive_ext: tar.gz
-          - os: macos-13
-            platform: macos-x64
+          - os: macos-latest
+            platform: macos-arm64
             binary_name: emacs-a11y
             archive_ext: tar.gz
           - os: windows-latest
@@ -130,15 +130,38 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Build unix bundle (macOS + Linux)
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          WINDOWS_ASSET="emacs-a11y-${TAG}-windows-x64.zip"
+          LINUX_ASSET="emacs-a11y-${TAG}-linux-x64.tar.gz"
+          MACOS_ASSET="emacs-a11y-${TAG}-macos-arm64.tar.gz"
+          UNIX_ASSET="emacs-a11y-${TAG}-unix-bundle.tar.gz"
+
+          test -f "release-assets/${WINDOWS_ASSET}"
+          test -f "release-assets/${LINUX_ASSET}"
+          test -f "release-assets/${MACOS_ASSET}"
+
+          mkdir -p unix-bundle/linux unix-bundle/macos
+          tar -xzf "release-assets/${LINUX_ASSET}" -C unix-bundle/linux
+          tar -xzf "release-assets/${MACOS_ASSET}" -C unix-bundle/macos
+          tar -czf "release-assets/${UNIX_ASSET}" -C unix-bundle .
+
+          echo "WINDOWS_ASSET=${WINDOWS_ASSET}" >> "$GITHUB_ENV"
+          echo "UNIX_ASSET=${UNIX_ASSET}" >> "$GITHUB_ENV"
+
       - name: Generate checksums
         shell: bash
         run: |
           cd release-assets
-          sha256sum * > SHA256SUMS.txt
+          sha256sum "$WINDOWS_ASSET" "$UNIX_ASSET" > SHA256SUMS.txt
 
       - name: Publish release assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release-assets/*
+            release-assets/${{ env.WINDOWS_ASSET }}
+            release-assets/${{ env.UNIX_ASSET }}
+            release-assets/SHA256SUMS.txt
           generate_release_notes: true

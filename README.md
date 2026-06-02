@@ -89,20 +89,22 @@ Saída esperada:
 
 - `dist/emacs-a11y.exe`
 
-### CI/CD de releases para três plataformas
+### CI/CD de releases
 
 Este repositório inclui o workflow `.github/workflows/release-installers.yml`
-que gera assets de instalação para:
+que publica dois assets finais por release:
 
-- Windows (`windows-x64`)
-- macOS (`macos-x64`)
-- Linux (`linux-x64`)
+- Windows (`windows-x64`): executável standalone em `.zip`
+- Unix bundle (`linux + macOS`): pacote único em `.tar.gz` contendo binários
+  separados por sistema
 
 Como publicar uma release:
 
 1. Crie e publique uma tag no formato `v*` (ex.: `v0.2.0`).
-2. O workflow compila binários com PyInstaller em cada sistema operacional.
-3. O pipeline cria pacotes por plataforma e publica no GitHub Releases.
+2. O workflow compila binários com PyInstaller para Windows, Linux e macOS.
+3. O pipeline publica:
+  - `emacs-a11y-<tag>-windows-x64.zip`
+  - `emacs-a11y-<tag>-unix-bundle.tar.gz` (com `linux` + `macos`)
 4. A release também inclui o arquivo `SHA256SUMS.txt` para verificação.
 
 Observação:
