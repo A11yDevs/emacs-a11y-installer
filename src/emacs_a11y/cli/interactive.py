@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from difflib import get_close_matches
+import threading
+import time
 from typing import Callable
 
 from emacs_a11y.cli.doctor import execute_doctor_command
+from emacs_a11y.install.emacs import run_install_emacs_flow
 from emacs_a11y.install.orchestrator import InstallOrchestrator
 from emacs_a11y.doctor.checks.common import build_environment_state
 from emacs_a11y.doctor.registry import load_checks
@@ -21,6 +24,29 @@ GLOBAL_COMMANDS = [
     CommandDefinition("back", "sair", kind="global"),
     CommandDefinition("exit", "sair", kind="global"),
 ]
+
+
+HEARTBEAT_INTERVAL_SECONDS = 5.0
+
+
+def _start_assisted_execution_heartbeat(
+    emit: Callable[[str], None] | None,
+) -> tuple[threading.Event, threading.Thread] | None:
+    if emit is None:
+        return None
+
+    stop_event = threading.Event()
+
+    def _heartbeat_worker() -> None:
+        emit("INFO: Execucao assistida iniciada. Aguarde...")
+        started_at = time.monotonic()
+        while not stop_event.wait(HEARTBEAT_INTERVAL_SECONDS):
+            elapsed_seconds = int(time.monotonic() - started_at)
+            emit(f"INFO: Execucao assistida em andamento... {elapsed_seconds}s")
+
+    thread = threading.Thread(target=_heartbeat_worker, daemon=True)
+    thread.start()
+    return stop_event, thread
 
 
 def build_context_tree() -> dict[str, CommandContext]:
@@ -46,7 +72,13 @@ def build_context_tree() -> dict[str, CommandContext]:
         *GLOBAL_COMMANDS,
     ]
     install_commands = [
-        CommandDefinition("minimal", "prepara plano da instalação minimal", kind="action"),
+        CommandDefinition("emacs", "instala ou orienta a instalação do GNU Emacs", kind="action"),
+        CommandDefinition(
+            "emacs-execute",
+            "solicita execução assistida do método suportado para GNU Emacs",
+            kind="action",
+        ),
+        CommandDefinition("minimal", "profile minimal - prepara plano da instalação minimal", kind="action"),
         CommandDefinition("confirm", "confirma execução da instalação", kind="action"),
         CommandDefinition("cancel", "cancela plano pendente", kind="action"),
         *GLOBAL_COMMANDS,
@@ -121,7 +153,11 @@ def _explain_checks() -> list[str]:
     return lines
 
 
-def dispatch_command(state: InteractiveSessionState, raw_command: str) -> CommandResult:
+def dispatch_command(
+    state: InteractiveSessionState,
+    raw_command: str,
+    emit: Callable[[str], None] | None = None,
+) -> CommandResult:
     command = raw_command.strip().split()[0] if raw_command.strip() else ""
     if not command:
         return CommandResult(status="ok", navigation=NavigationAction.STAY)
@@ -205,6 +241,40 @@ def dispatch_command(state: InteractiveSessionState, raw_command: str) -> Comman
         state.session_data["install_preview"] = preview
         return CommandResult(status="ok", navigation=NavigationAction.STAY, message_lines=preview.lines)
 
+    if context.name == "install" and command == "emacs":
+        result, lines = run_install_emacs_flow(execute=False, dry_run=False, method="auto")
+        state.session_data["install_emacs_last_result"] = result
+        return CommandResult(
+            status="ok",
+            navigation=NavigationAction.STAY,
+            message_lines=lines,
+            exit_code=result.exit_code,
+        )
+
+    if context.name == "install" and command == "emacs-execute":
+        heartbeat = _start_assisted_execution_heartbeat(emit)
+        try:
+            result, lines = run_install_emacs_flow(
+                execute=True,
+                dry_run=False,
+                method="auto",
+                confirm_callback=lambda prompt: True,
+            )
+        finally:
+            if heartbeat is not None and emit is not None:
+                stop_event, thread = heartbeat
+                stop_event.set()
+                thread.join(timeout=0.2)
+                emit("INFO: Execucao assistida finalizada. Preparando resumo...")
+
+        state.session_data["install_emacs_last_result"] = result
+        return CommandResult(
+            status="ok",
+            navigation=NavigationAction.STAY,
+            message_lines=lines,
+            exit_code=result.exit_code,
+        )
+
     if context.name == "install" and command == "confirm":
         preview = state.session_data.get("install_preview")
         if preview is None:
@@ -264,7 +334,7 @@ def run_interactive_session(
             writer("Sessão interrompida.")
             return 0
 
-        result = dispatch_command(state, raw)
+        result = dispatch_command(state, raw, emit=writer)
         for line in result.message_lines:
             writer(line)
 

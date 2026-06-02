@@ -1,0 +1,38 @@
+@startuml
+start
+:Detect environment;
+:Detect Emacs availability;
+
+if (Emacs found?) then (yes)
+  :Detect path and version;
+  :Assess version policy;
+  :Render installed summary;
+  :Suggest doctor and\ninstall --profile minimal;
+  stop
+else (no)
+  :Choose safe install method;
+  if (Mode is guidance-only or dry-run?) then (yes)
+    :Render recommendation and\nnext steps;
+    stop
+  else (assisted execution)
+    if (Method supported for execution?) then (yes)
+      :Render consent summary;
+      if (User confirms?) then (yes)
+        :Execute documented command;
+        :Detect Emacs again;
+        if (Emacs detected after execution?) then (yes)
+          :Render SUCCESS and next steps;
+        else (no)
+          :Render WARNING and guidance\nabout shell/PATH/doctor;
+        endif
+      else (no)
+        :Render CANCELLED;
+      endif
+    else (no)
+      :Render unsupported-method guidance;
+    endif
+  endif
+endif
+
+stop
+@enduml

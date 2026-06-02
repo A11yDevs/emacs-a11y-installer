@@ -1,0 +1,48 @@
+name: Build Windows Executable
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+          python -m pip install pyinstaller
+
+      - name: Build emacs-a11y.exe
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --noconfirm `
+            --clean `
+            --onefile `
+            --name emacs-a11y `
+            --collect-data emacs_a11y `
+            --collect-data emacs_a11y.resources `
+            src/emacs_a11y/cli/doctor.py
+
+      - name: Smoke test executable
+        shell: pwsh
+        run: |
+          .\dist\emacs-a11y.exe --help
+          .\dist\emacs-a11y.exe doctor --help
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emacs-a11y-windows-x64
+          path: dist/emacs-a11y.exe

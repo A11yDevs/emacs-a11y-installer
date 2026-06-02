@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+actor User
+actor Maintainer
+
+rectangle "Emacs Install Assistant" {
+  usecase "Receber recomendacao\nquando Emacs esta ausente" as UC1
+  usecase "Executar instalacao\nassistida com consentimento" as UC2
+  usecase "Cancelar antes da execucao" as UC3
+  usecase "Receber proximos passos\nquando Emacs ja existe" as UC4
+  usecase "Usar dry-run previsivel" as UC5
+  usecase "Usar modo interativo\ninstall > emacs" as UC6
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC6
+Maintainer --> UC5
+
+UC2 ..> UC3 : inclui
+UC6 ..> UC1 : pode levar a
+UC6 ..> UC2 : pode levar a
+UC4 ..> UC5 : complementa suporte
+
+@enduml

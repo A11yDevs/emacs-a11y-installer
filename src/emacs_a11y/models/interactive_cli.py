@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
+from emacs_a11y.models.emacs_install import InteractiveInstallContextState
+
 
 class NavigationAction(str, Enum):
     STAY = "STAY"
@@ -50,6 +52,7 @@ class InteractiveSessionState:
     contexts: dict[str, CommandContext]
     running: bool = True
     session_data: dict[str, object] = field(default_factory=dict)
+    install_emacs_state: InteractiveInstallContextState = field(default_factory=InteractiveInstallContextState)
 
     @property
     def current_context(self) -> CommandContext:
