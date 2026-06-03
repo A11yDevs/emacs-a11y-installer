@@ -120,5 +120,4 @@ No escopo atual de diagnóstico, a ferramenta:
 ## Documentação
 
 - Guia funcional do comando doctor: [docs/doctor-cli.md](docs/doctor-cli.md)
-- CI/CD e publicação de releases: [docs/release-cicd.md](docs/release-cicd.md)
 - Documentação para contribuidores: [docs/README.md](docs/README.md)
