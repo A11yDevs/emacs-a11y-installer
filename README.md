@@ -21,6 +21,9 @@ Hoje, a principal funcionalidade disponível é o comando de diagnóstico
 curl -fsSL https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.sh | bash
 ```
 
+O instalador Unix usa `pipx` quando disponivel e cai para `pip --user` como
+fallback. Funciona em Linux e macOS com Python 3.11+.
+
 #### Windows (PowerShell)
 
 ```powershell
@@ -30,7 +33,7 @@ iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/s
 Instalar uma versão especifica:
 
 ```bash
-EMACS_A11Y_VERSION=v0.1.1 curl -fsSL https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.sh | bash
+EMACS_A11Y_VERSION=0.1.2 curl -fsSL https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.sh | bash
 ```
 
 ```powershell
@@ -40,7 +43,13 @@ $env:EMACS_A11Y_VERSION = "v0.1.1"; iwr -useb https://raw.githubusercontent.com/
 ### Opção recomendada para usuários técnicos (`pipx`)
 
 ```bash
-pipx install .
+pipx install emacs-a11y-installer
+```
+
+Ou, antes de publicar no PyPI, diretamente do GitHub:
+
+```bash
+pipx install "git+https://github.com/A11yDevs/emacs-a11y-installer.git"
 ```
 
 ### Opção para desenvolvimento local
@@ -85,9 +94,9 @@ No escopo atual de diagnóstico, a ferramenta:
 ## Estratégia de distribuição
 
 - Formato canônico: pacote Python multiplataforma.
-- Instalação preferencial para usuários técnicos: `pipx`.
-- Distribuição opcional para usuários finais: executáveis autônomos gerados do
-  mesmo código-fonte (por exemplo, `emacs-a11y.exe`), com runtime Python embutido.
+- Instalação preferencial para usuários técnicos: `pipx` ou `pip`.
+- Distribuição opcional para usuários finais no Windows: executável autônomo
+  `emacs-a11y.exe`, com runtime Python embutido.
 
 ### Gerar executável para Windows (.exe)
 
@@ -116,25 +125,30 @@ Saída esperada:
 ### CI/CD de releases
 
 Este repositório inclui o workflow `.github/workflows/release-installers.yml`
-que publica dois assets finais por release:
+que publica assets finais por release e envia o pacote Python automaticamente ao
+PyPI:
 
 - Windows (`windows-x64`): executável standalone em `.zip`
-- Unix bundle (`linux + macOS`): pacote único em `.tar.gz` contendo binários
-  separados por sistema
+- Wheel Python portável (`py3-none-any`)
+- Sdist (`tar.gz`) com código-fonte
 
 Como publicar uma release:
 
 1. Crie e publique uma tag no formato `v*` (ex.: `v0.2.0`).
-2. O workflow compila binários com PyInstaller para Windows, Linux e macOS.
+2. O workflow compila o executável Windows e gera `wheel` + `sdist` do pacote Python.
 3. O pipeline publica:
   - `emacs-a11y-<tag>-windows-x64.zip`
-  - `emacs-a11y-<tag>-unix-bundle.tar.gz` (com `linux` + `macos`)
+  - `emacs_a11y_installer-<versao>-py3-none-any.whl`
+  - `emacs_a11y_installer-<versao>.tar.gz`
 4. A release também inclui o arquivo `SHA256SUMS.txt` para verificação.
+5. Em tags `v*`, o workflow também publica o pacote Python no PyPI via Trusted Publishing.
 
 Observação:
 
 - O workflow `build-windows-exe.yml` continua disponível para builds manuais
   ad-hoc apenas de Windows.
+- Para a automação do PyPI funcionar, é preciso cadastrar este repositório e o
+  workflow como Trusted Publisher no projeto do PyPI.
 
 ## Documentação
 
