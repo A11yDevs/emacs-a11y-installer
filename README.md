@@ -13,6 +13,28 @@ Hoje, a principal funcionalidade disponível é o comando de diagnóstico
 
 ## Instalação rápida
 
+### Opção mais simples (PyPI)
+
+#### pipx (recomendado)
+
+```bash
+pipx install emacs-a11y-installer
+```
+
+```powershell
+pipx install emacs-a11y-installer
+```
+
+#### pip
+
+```bash
+python3 -m pip install --user --upgrade emacs-a11y-installer
+```
+
+```powershell
+python -m pip install --user --upgrade emacs-a11y-installer
+```
+
 ### One-liner para usuários finais
 
 #### Unix (bash)
@@ -30,6 +52,9 @@ fallback. Funciona em Linux e macOS com Python 3.11+.
 iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
 ```
 
+O instalador PowerShell usa `pipx` quando disponivel e cai para `pip --user`
+como fallback.
+
 Instalar uma versão especifica:
 
 ```bash
@@ -37,19 +62,13 @@ EMACS_A11Y_VERSION=0.1.2 curl -fsSL https://raw.githubusercontent.com/A11yDevs/e
 ```
 
 ```powershell
-$env:EMACS_A11Y_VERSION = "v0.1.1"; iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
+$env:EMACS_A11Y_VERSION = "0.1.2"; iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
 ```
 
 ### Opção recomendada para usuários técnicos (`pipx`)
 
 ```bash
 pipx install emacs-a11y-installer
-```
-
-Ou, antes de publicar no PyPI, diretamente do GitHub:
-
-```bash
-pipx install "git+https://github.com/A11yDevs/emacs-a11y-installer.git"
 ```
 
 ### Opção para desenvolvimento local
@@ -96,7 +115,7 @@ No escopo atual de diagnóstico, a ferramenta:
 - Formato canônico: pacote Python multiplataforma.
 - Instalação preferencial para usuários técnicos: `pipx` ou `pip`.
 - Distribuição opcional para usuários finais no Windows: executável autônomo
-  `emacs-a11y.exe`, com runtime Python embutido.
+  `emacs-a11y.exe` (asset de release), com runtime Python embutido.
 
 ### Gerar executável para Windows (.exe)
 

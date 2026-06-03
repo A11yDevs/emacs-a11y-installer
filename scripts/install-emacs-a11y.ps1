@@ -1,23 +1,27 @@
 $ErrorActionPreference = "Stop"
 
-$repo = "A11yDevs/emacs-a11y-installer"
-$installDir = if ($env:EMACS_A11Y_INSTALL_DIR) {
-    $env:EMACS_A11Y_INSTALL_DIR
-} else {
-    Join-Path $env:LOCALAPPDATA "Programs\emacs-a11y\bin"
-}
-
+$packageName = "emacs-a11y-installer"
 $version = $env:EMACS_A11Y_VERSION
 
-function Get-LatestTag {
-    param([string]$Repository)
+function Normalize-Version {
+    param([string]$Value)
 
-    $apiUrl = "https://api.github.com/repos/$Repository/releases/latest"
-    $release = Invoke-RestMethod -Uri $apiUrl
-    if (-not $release.tag_name) {
-        throw "Nao foi possivel detectar tag da release mais recente."
+    if (-not $Value) {
+        return $null
     }
-    return [string]$release.tag_name
+
+    return $Value.TrimStart('v')
+}
+
+function Resolve-PackageSpec {
+    param([string]$Name, [string]$Version)
+
+    $normalized = Normalize-Version -Value $Version
+    if ($normalized) {
+        return "$Name==$normalized"
+    }
+
+    return $Name
 }
 
 function Ensure-UserPathEntry {
@@ -46,39 +50,42 @@ function Ensure-UserPathEntry {
     }
 }
 
-if (-not $version) {
-    $version = Get-LatestTag -Repository $repo
-}
+$packageSpec = Resolve-PackageSpec -Name $packageName -Version $version
 
-$assetName = "emacs-a11y-$version-windows-x64.zip"
-$assetUrl = "https://github.com/$repo/releases/download/$version/$assetName"
-
-$tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("emacs-a11y-install-" + [Guid]::NewGuid().ToString("N"))
-$archivePath = Join-Path $tempRoot $assetName
-$extractPath = Join-Path $tempRoot "extract"
-
-New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
-New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
-
-try {
-    Invoke-WebRequest -Uri $assetUrl -OutFile $archivePath
-    Expand-Archive -Path $archivePath -DestinationPath $extractPath -Force
-
-    $sourceExe = Join-Path $extractPath "emacs-a11y.exe"
-    if (-not (Test-Path $sourceExe)) {
-        throw "Executavel emacs-a11y.exe nao encontrado no pacote da release."
+if (Get-Command pipx -ErrorAction SilentlyContinue) {
+    pipx install --force $packageSpec
+    if ($LASTEXITCODE -ne 0) {
+        throw "Falha ao instalar via pipx."
     }
 
-    New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-    Copy-Item -Path $sourceExe -Destination (Join-Path $installDir "emacs-a11y.exe") -Force
-
-    Ensure-UserPathEntry -Entry $installDir
-
-    Write-Host "Instalacao concluida: $(Join-Path $installDir 'emacs-a11y.exe')"
-    Write-Host "PATH do usuario atualizado. Abra um novo PowerShell e execute: emacs-a11y --help"
+    Write-Host "Instalacao concluida via pipx: $packageSpec"
+    Write-Host "Execute: emacs-a11y --help"
+    exit 0
 }
-finally {
-    if (Test-Path $tempRoot) {
-        Remove-Item -Path $tempRoot -Recurse -Force
-    }
+
+$python = Get-Command python -ErrorAction SilentlyContinue
+if (-not $python) {
+    $python = Get-Command py -ErrorAction SilentlyContinue
+}
+
+if (-not $python) {
+    throw "Python 3.11+ nao encontrado. Instale Python ou pipx para continuar."
+}
+
+$pythonCmd = $python.Name
+$pipInstallArgs = @("-m", "pip", "install", "--user", "--upgrade", $packageSpec)
+& $pythonCmd @pipInstallArgs
+if ($LASTEXITCODE -ne 0) {
+    throw "Falha ao instalar via pip."
+}
+
+$userBase = & $pythonCmd -c "import site; print(site.USER_BASE)"
+$userScripts = Join-Path $userBase "Scripts"
+Ensure-UserPathEntry -Entry $userScripts
+
+Write-Host "Instalacao concluida via pip: $packageSpec"
+Write-Host "Abra um novo PowerShell e execute: emacs-a11y --help"
+
+if (-not (($env:Path -split ';') -contains $userScripts)) {
+    Write-Host "Se necessario, adicione ao PATH: $userScripts"
 }
