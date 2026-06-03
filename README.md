@@ -17,6 +17,20 @@ Hoje, a principal funcionalidade disponível é o comando de diagnóstico
 
 #### pipx (recomendado)
 
+Se você ainda não tem `pipx`, instale uma vez:
+
+```bash
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+```powershell
+python -m pip install --user pipx
+python -m pipx ensurepath
+```
+
+Abra um novo terminal após `ensurepath`.
+
 ```bash
 pipx install emacs-a11y-installer
 ```
@@ -25,7 +39,9 @@ pipx install emacs-a11y-installer
 pipx install emacs-a11y-installer
 ```
 
-#### pip
+#### pip (não recomendado para usuário final)
+
+A instalação via `pip` funciona, mas o executável `emacs-a11y` pode não ficar no `PATH` automaticamente. Nesses casos, é necessário ajustar o `PATH` manualmente.
 
 ```bash
 python3 -m pip install --user --upgrade emacs-a11y-installer
@@ -33,6 +49,49 @@ python3 -m pip install --user --upgrade emacs-a11y-installer
 
 ```powershell
 python -m pip install --user --upgrade emacs-a11y-installer
+```
+
+Passo a passo para usar `pip` no macOS/Linux:
+
+1. Instale o pacote:
+
+```bash
+python3 -m pip install --user --upgrade emacs-a11y-installer
+```
+
+2. Adicione o diretório de scripts ao `PATH`:
+
+```bash
+echo 'export PATH="$HOME/Library/Python/3.11/bin:$PATH"' >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+3. Valide:
+
+```bash
+emacs-a11y --help
+```
+
+Passo a passo para usar `pip` no Windows (PowerShell):
+
+1. Instale o pacote:
+
+```powershell
+python -m pip install --user --upgrade emacs-a11y-installer
+```
+
+2. Descubra o diretório de scripts do usuário:
+
+```powershell
+python -c "import site; print(site.USER_BASE)"
+```
+
+3. Adicione `<USER_BASE>\\Scripts` ao `Path` de usuário e abra novo terminal.
+
+4. Valide:
+
+```powershell
+emacs-a11y --help
 ```
 
 ### One-liner para usuários finais
