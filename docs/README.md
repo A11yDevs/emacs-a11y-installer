@@ -8,9 +8,9 @@ emacs-a11y-installer.
 - Código-fonte principal: [src/emacs_a11y](../src/emacs_a11y)
 - Testes: [tests](../tests)
 - Especificações e planejamento: [specs](../specs)
-- Documentação funcional do doctor: [docs/doctor-cli.md](docs/doctor-cli.md)
-- CI/CD e publicação de releases: [docs/release-cicd.md](docs/release-cicd.md)
-- Diagramas PlantUML: [docs/plantuml](docs/plantuml)
+- Documentação funcional do doctor: [doctor-cli.md](doctor-cli.md)
+- CI/CD e publicação de releases: [release-cicd.md](release-cicd.md)
+- Diagramas PlantUML: [plantuml](plantuml)
 
 ## Requisitos de ambiente
 
@@ -68,8 +68,8 @@ python -m pytest -q tests/integration
 Ao mudar fluxo de CLI, atualize também:
 
 - [README.md](../README.md) (visão para usuário final)
-- [docs/doctor-cli.md](docs/doctor-cli.md)
-- Diagramas em [docs/plantuml](docs/plantuml)
+- [doctor-cli.md](doctor-cli.md)
+- Diagramas em [plantuml](plantuml)
 - Artefatos de especificação relevantes em [specs](../specs)
 
 ## Pull Request
