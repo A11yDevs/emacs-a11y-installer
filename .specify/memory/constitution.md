@@ -1,19 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 2.0.0 -> 2.1.0
+- Version change: 2.1.0 -> 2.2.0
 - Modified principles:
-	- Artigo VI — Python como núcleo, scripts como adaptadores -> Artigo VI — Python como núcleo canônico e scripts como adaptadores
-	- Artigo XII — Simplicidade antes de empacotamento sofisticado -> Artigo XII — Estratégia oficial de distribuição em camadas
+	- Artigo XI — Documentação como parte da entrega
 - Added sections:
-	- Estratégia Oficial de Distribuição e Instalação
+	- None
 - Removed sections:
 	- None
 - Templates requiring updates:
-	- ✅ .specify/templates/plan-template.md
-	- ✅ .specify/templates/spec-template.md
-	- ✅ .specify/templates/tasks-template.md
-	- ✅ .specify/templates/commands/*.md (não há arquivos)
 	- ✅ README.md
+	- ✅ docs/README.md
 - Follow-up TODOs:
 	- None
 -->
@@ -118,6 +114,10 @@ manutenção comunitária.
 * Nenhuma funcionalidade é completa sem documentação mínima.
 * Cada comando MUST incluir ajuda CLI, exemplo de uso, descrição de efeitos,
 riscos conhecidos e estratégia de reversão quando aplicável.
+* O arquivo `README.md` principal MUST priorizar documentação para usuários
+finais (instalação, uso e fluxos operacionais básicos).
+* Documentação para desenvolvimento, contribuição, CI/CD e publicação MUST ficar
+na pasta `docs/`, em documentos específicos para contribuidores.
 
 Rationale: documentação operacional é parte do produto e não um artefato
 opcional.
@@ -185,4 +185,4 @@ adoção sem fragmentar o núcleo técnico.
 - Revisões de conformidade MUST ocorrer na aprovação do plano e na revisão de
 	pull request; exceções MUST ser registradas com justificativa e aprovação.
 
-**Version**: 2.1.0 | **Ratified**: 2026-06-01 | **Last Amended**: 2026-06-01
+**Version**: 2.2.0 | **Ratified**: 2026-06-01 | **Last Amended**: 2026-06-02

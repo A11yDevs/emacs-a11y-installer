@@ -9,6 +9,7 @@ emacs-a11y-installer.
 - Testes: [tests](../tests)
 - Especificações e planejamento: [specs](../specs)
 - Documentação funcional do doctor: [docs/doctor-cli.md](docs/doctor-cli.md)
+- CI/CD e publicação de releases: [docs/release-cicd.md](docs/release-cicd.md)
 - Diagramas PlantUML: [docs/plantuml](docs/plantuml)
 
 ## Requisitos de ambiente
