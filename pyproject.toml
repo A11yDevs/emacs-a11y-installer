@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "emacs-a11y-installer"
 dynamic = ["version"]
-description = "Accessible CLI installer tooling for Emacs Acessivel"
+description = "CLI installer tooling for Accessible Emacs (emacs-a11y)."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
