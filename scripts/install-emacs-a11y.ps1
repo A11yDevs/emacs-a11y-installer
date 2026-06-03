@@ -50,6 +50,52 @@ function Ensure-UserPathEntry {
     }
 }
 
+function Resolve-PythonRunner {
+    $candidates = @()
+
+    $pyLauncher = Get-Command py -ErrorAction SilentlyContinue
+    if ($pyLauncher) {
+        $pyExecutable = if ($pyLauncher.Source) { $pyLauncher.Source } else { $pyLauncher.Name }
+        $candidates += [PSCustomObject]@{
+            Executable = $pyExecutable
+            PrefixArgs = @("-3")
+            Display    = "py -3"
+        }
+    }
+
+    $pythonCommands = Get-Command python -All -ErrorAction SilentlyContinue
+    foreach ($pythonCommand in $pythonCommands) {
+        $pythonExecutable = if ($pythonCommand.Source) { $pythonCommand.Source } else { $pythonCommand.Name }
+        if (-not $pythonExecutable) {
+            continue
+        }
+
+        # Ignora alias de WindowsApps que costuma falhar em automacao.
+        if ($pythonExecutable -like "*\\WindowsApps\\python.exe") {
+            continue
+        }
+
+        $candidates += [PSCustomObject]@{
+            Executable = $pythonExecutable
+            PrefixArgs = @()
+            Display    = $pythonExecutable
+        }
+    }
+
+    foreach ($candidate in $candidates) {
+        $probeArgs = @()
+        $probeArgs += $candidate.PrefixArgs
+        $probeArgs += @("-c", "import sys; print(sys.executable)")
+
+        $probeOutput = & $candidate.Executable @probeArgs 2>$null
+        if (($LASTEXITCODE -eq 0) -and $probeOutput) {
+            return $candidate
+        }
+    }
+
+    return $null
+}
+
 $packageSpec = Resolve-PackageSpec -Name $packageName -Version $version
 
 if (Get-Command pipx -ErrorAction SilentlyContinue) {
@@ -63,23 +109,31 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
     exit 0
 }
 
-$python = Get-Command python -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command py -ErrorAction SilentlyContinue
-}
-
-if (-not $python) {
+$pythonRunner = Resolve-PythonRunner
+if (-not $pythonRunner) {
     throw "Python 3.11+ nao encontrado. Instale Python ou pipx para continuar."
 }
 
-$pythonCmd = $python.Name
-$pipInstallArgs = @("-m", "pip", "install", "--user", "--upgrade", $packageSpec)
-& $pythonCmd @pipInstallArgs
+$pipInstallArgs = @()
+$pipInstallArgs += $pythonRunner.PrefixArgs
+$pipInstallArgs += @("-m", "pip", "install", "--user", "--upgrade", $packageSpec)
+
+& $pythonRunner.Executable @pipInstallArgs
 if ($LASTEXITCODE -ne 0) {
     throw "Falha ao instalar via pip."
 }
 
-$userBase = & $pythonCmd -c "import site; print(site.USER_BASE)"
+$userBaseArgs = @()
+$userBaseArgs += $pythonRunner.PrefixArgs
+$userBaseArgs += @("-c", "import site; print(site.USER_BASE)")
+
+$userBaseOutput = & $pythonRunner.Executable @userBaseArgs
+$userBase = ($userBaseOutput | Where-Object { $_ -and $_.Trim() } | Select-Object -Last 1)
+if (-not $userBase) {
+    throw "Nao foi possivel determinar site.USER_BASE para ajustar o PATH."
+}
+
+$userBase = $userBase.Trim()
 $userScripts = Join-Path $userBase "Scripts"
 Ensure-UserPathEntry -Entry $userScripts
 

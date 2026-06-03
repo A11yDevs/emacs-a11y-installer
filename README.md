@@ -108,7 +108,7 @@ fallback. Funciona em Linux e macOS com Python 3.11+.
 #### Windows (PowerShell)
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
+(iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1).Content | iex
 ```
 
 O instalador PowerShell usa `pipx` quando disponivel e cai para `pip --user`
@@ -121,7 +121,7 @@ EMACS_A11Y_VERSION=0.1.2 curl -fsSL https://raw.githubusercontent.com/A11yDevs/e
 ```
 
 ```powershell
-$env:EMACS_A11Y_VERSION = "0.1.2"; iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1 | iex
+$env:EMACS_A11Y_VERSION = "0.1.2"; (iwr -useb https://raw.githubusercontent.com/A11yDevs/emacs-a11y-installer/main/scripts/install-emacs-a11y.ps1).Content | iex
 ```
 
 ### Opção recomendada para usuários técnicos (`pipx`)
