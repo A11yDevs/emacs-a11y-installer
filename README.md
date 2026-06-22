@@ -114,6 +114,19 @@ fallback. Funciona em Linux e macOS com Python 3.11+.
 O instalador PowerShell usa `pipx` quando disponivel e cai para `pip --user`
 como fallback.
 
+Se `emacs-a11y` nao for reconhecido logo apos instalar no PowerShell:
+
+```powershell
+# Abra um novo terminal primeiro. Se ainda falhar:
+python -c "import os, site, sysconfig; print(os.path.join(site.USER_BASE, 'Scripts')); print(sysconfig.get_path('scripts', f'{os.name}_user'))"
+```
+
+Adicione o caminho exibido ao `Path` de usuario e teste novamente:
+
+```powershell
+emacs-a11y --help
+```
+
 Instalar uma versão especifica:
 
 ```bash

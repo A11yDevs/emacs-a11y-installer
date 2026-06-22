@@ -27,6 +27,15 @@ function Resolve-PackageSpec {
 function Ensure-UserPathEntry {
     param([string]$Entry)
 
+    if (-not $Entry) {
+        return
+    }
+
+    $Entry = $Entry.Trim()
+    if (-not $Entry) {
+        return
+    }
+
     $currentUserPath = [Environment]::GetEnvironmentVariable("Path", "User")
     $pathParts = @()
     if ($currentUserPath) {
@@ -48,6 +57,51 @@ function Ensure-UserPathEntry {
     if (-not (($env:Path -split ';') -contains $Entry)) {
         $env:Path = "$env:Path;$Entry"
     }
+}
+
+function Resolve-UserScriptsEntries {
+    param(
+        [string]$PythonExecutable,
+        [string[]]$PrefixArgs
+    )
+
+    $args = @()
+    $args += $PrefixArgs
+    $args += @("-c", "import json, os, site, sysconfig; candidates=[]; user_base=site.USER_BASE or ''; candidates.append(os.path.join(user_base, 'Scripts') if user_base else ''); scripts_nt_user=sysconfig.get_path('scripts', f'{os.name}_user') or ''; candidates.append(scripts_nt_user); localapp=os.environ.get('LOCALAPPDATA',''); candidates.append(os.path.join(localapp, 'Python', 'Scripts') if localapp else ''); pyexe=sys.executable or ''; py_dir=os.path.dirname(pyexe) if pyexe else ''; candidates.append(os.path.join(py_dir, 'Scripts') if py_dir else ''); print(json.dumps(candidates))")
+
+    $raw = & $PythonExecutable @args
+    if ($LASTEXITCODE -ne 0) {
+        return @()
+    }
+
+    $jsonLine = ($raw | Where-Object { $_ -and $_.Trim() } | Select-Object -Last 1)
+    if (-not $jsonLine) {
+        return @()
+    }
+
+    try {
+        $entries = $jsonLine | ConvertFrom-Json
+    } catch {
+        return @()
+    }
+
+    $result = @()
+    foreach ($entry in $entries) {
+        if (-not $entry) {
+            continue
+        }
+
+        $trimmed = $entry.Trim()
+        if (-not $trimmed) {
+            continue
+        }
+
+        if (-not ($result -contains $trimmed)) {
+            $result += $trimmed
+        }
+    }
+
+    return $result
 }
 
 function Resolve-PythonRunner {
@@ -123,23 +177,41 @@ if ($LASTEXITCODE -ne 0) {
     throw "Falha ao instalar via pip."
 }
 
-$userBaseArgs = @()
-$userBaseArgs += $pythonRunner.PrefixArgs
-$userBaseArgs += @("-c", "import site; print(site.USER_BASE)")
-
-$userBaseOutput = & $pythonRunner.Executable @userBaseArgs
-$userBase = ($userBaseOutput | Where-Object { $_ -and $_.Trim() } | Select-Object -Last 1)
-if (-not $userBase) {
-    throw "Nao foi possivel determinar site.USER_BASE para ajustar o PATH."
+$userScriptsEntries = Resolve-UserScriptsEntries -PythonExecutable $pythonRunner.Executable -PrefixArgs $pythonRunner.PrefixArgs
+if (-not $userScriptsEntries -or $userScriptsEntries.Count -eq 0) {
+    throw "Nao foi possivel determinar os diretorios de Scripts do usuario para ajustar o PATH."
 }
 
-$userBase = $userBase.Trim()
-$userScripts = Join-Path $userBase "Scripts"
-Ensure-UserPathEntry -Entry $userScripts
+foreach ($entry in $userScriptsEntries) {
+    Ensure-UserPathEntry -Entry $entry
+}
+
+$commandPath = $null
+foreach ($entry in $userScriptsEntries) {
+    $candidateExe = Join-Path $entry "emacs-a11y.exe"
+    $candidateCmd = Join-Path $entry "emacs-a11y"
+
+    if (Test-Path $candidateExe) {
+        $commandPath = $candidateExe
+        break
+    }
+
+    if (Test-Path $candidateCmd) {
+        $commandPath = $candidateCmd
+        break
+    }
+}
 
 Write-Host "Instalacao concluida via pip: $packageSpec"
 Write-Host "Abra um novo PowerShell e execute: emacs-a11y --help"
 
-if (-not (($env:Path -split ';') -contains $userScripts)) {
-    Write-Host "Se necessario, adicione ao PATH: $userScripts"
+if (-not (Get-Command emacs-a11y -ErrorAction SilentlyContinue)) {
+    if ($commandPath) {
+        Write-Host "Comando ainda nao encontrado nesta sessao. Use temporariamente: $commandPath --help"
+    }
+
+    Write-Host "Se ainda falhar em novo terminal, confira estes diretorios no PATH de usuario:"
+    foreach ($entry in $userScriptsEntries) {
+        Write-Host " - $entry"
+    }
 }
